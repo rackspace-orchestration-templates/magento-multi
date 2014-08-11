@@ -421,7 +421,12 @@ resources:
           server_debian_password: { get_attr: [mysql_debian_password, value] }
           server_repl_password: { get_attr: [mysql_repl_password, value] }
         rax:
-          memcached:
+          magento:
+            memcached:
+              sessions:
+                listen: { get_attr: [database_server, privateIPv4] }
+              slow_backend:
+                listen: { get_attr: [database_server, privateIPv4] }
             clients:
               - { get_attr: [master_server, privateIPv4] }
               - { get_attr: [web_servers, privateIPv4] }
@@ -490,6 +495,21 @@ resources:
           php-fpm:
             master: { get_attr: [master_server, privateIPv4] }
             slaves: { get_attr: [web_servers, privateIPv4] }
+            pools:
+              - name: magento
+                listen:
+                  str_replace:
+                    template: "%ip%:9001"
+                    params:
+                      "%ip%": { get_attr: [master_server, privateIPv4] }
+                user: magento
+                group: www-data
+                process_manager: dynamic
+                max_children: 50
+                start_servers: 5
+                min_spare_servers: 5
+                max_spare_servers: 35
+                max_requests: 500
         run_list: ["recipe[apt]",
                    "recipe[build-essential]",
                    "recipe[magento]",
