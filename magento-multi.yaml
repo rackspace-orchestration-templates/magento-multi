@@ -483,6 +483,7 @@ resources:
           firewall:
             tcp: [80, 443]
           php-fpm:
+            master: { get_attr: [master_server, privateIPv4] }
             slaves: { get_attr: [web_servers, privateIPv4] }
         run_list: ["recipe[apt]",
                    "recipe[build-essential]",
@@ -490,11 +491,6 @@ resources:
                    "recipe[rax-magento::php_fpm]",
                    "recipe[rax-magento::config_magento]",
                    "recipe[rax-magento::memcache-client]",
-                   "recipe[hollandbackup]",
-                   "recipe[hollandbackup::mysqldump]",
-                   "recipe[hollandbackup::main]",
-                   "recipe[hollandbackup::backupsets]",
-                   "recipe[hollandbackup::cron]",
                    "recipe[rax-firewall]"]
 
   web_servers:
