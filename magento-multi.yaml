@@ -491,6 +491,7 @@ resources:
                    "recipe[rax-magento::php_fpm]",
                    "recipe[rax-magento::config_magento]",
                    "recipe[rax-magento::memcache-client]",
+                   "recipe[rax-magento::lsyncd]",
                    "recipe[rax-firewall]"]
 
   web_servers:
