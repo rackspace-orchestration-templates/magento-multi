@@ -113,9 +113,12 @@ resources:
           lsyncd:
             ssh:
               pub: { get_param: lsync_pub }
+          firewall:
+            tcp: [80, 443]
         run_list: ["recipe[apt]",
                    "recipe[build-essential]",
-                   "recipe[rax-magento::web]"]
+                   "recipe[rax-magento::web]",
+                   "recipe[rax-firewall]"]
 
 outputs:
   accessIPv4:
