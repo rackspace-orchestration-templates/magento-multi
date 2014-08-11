@@ -10,7 +10,7 @@ parameter_groups:
   parameters:
   - image
   - master_flavor
-  - web_flavor
+  - web_server_flavor
   - web_server_count
 
 - label: Database Settings
@@ -25,7 +25,7 @@ parameter_groups:
 
 - label: rax-dev-params
   parameters:
-  - server_hostname
+  - master_hostname
   - database_hostname
   - web_hostname
   - database_name
@@ -74,10 +74,22 @@ parameters:
     - length:
         min: 1
         max: 64
-    - allowed_pattern: "^[a-zA-Z][a-zA-Z0-9-]*$"
+    - allowed_pattern: "^[a-zA-Z][a-zA-Z0-9%-]*$"
       description: |
         Must begin with a letter and contain only alphanumeric characters.
 
+  load_balancer_hostname:
+    label: Load Balancer Name
+    description: Hostname to use for the Load Balancer that is built.
+    type: string
+    default: Magento-Load-Balancer
+    constraints:
+    - length:
+        min: 1
+        max: 64
+    - allowed_pattern: "^[a-zA-Z][a-zA-Z0-9%-]*$"
+      description: |
+        Must begin with a letter and contain only alphanumeric characters.
   image:
     label: Operating System
     description: |
@@ -357,7 +369,7 @@ resources:
     type: "Rackspace::Cloud::Server"
     properties:
       name: { get_param: master_hostname }
-      flavor: { get_param: flavor }
+      flavor: { get_param: master_flavor }
       image: { get_param: image }
       key_name: { get_resource: ssh_key }
       metadata:
@@ -431,7 +443,7 @@ resources:
     properties:
       username: root
       private_key: { get_attr: [ssh_key, private_key] }
-      host: { get_attr: [magento_server, accessIPv4] }
+      host: { get_attr: [master_server, accessIPv4] }
       kitchen: { get_param: kitchen }
       chef_version: { get_param: chef_version }
       node:
@@ -490,13 +502,11 @@ resources:
       resource_def:
         type: { get_param: child_template }
         properties:
-          web_hostname: { get_param: web_hostname }
+          hostname: { get_param: web_hostname }
           image: { get_param: image }
           flavor: { get_param: web_server_flavor }
           domain: { get_param: domain }
           lsync_pub: { get_attr: [ssh_sync_key, public_key]}
-          varnish_master_backend: { get_attr: [master_server, privateIPv4] }
-          memcached_host: { get_attr: [database_server, privateIPv4] }
           php_fpm_master: { get_attr: [master_server, privateIPv4] }
           ssh_keypair_name: { get_resource: ssh_key }
           ssh_private_key: { get_attr: [ssh_key, private_key] }
