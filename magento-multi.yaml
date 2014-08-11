@@ -1,0 +1,542 @@
+heat_template_version: 2013-05-23
+
+description: |
+  This is a Heat template to deploy multiple Linux server running Magento
+  Community Edition.
+
+parameter_groups:
+
+- label: Server Settings
+  - image
+  - master_flavor
+  - web_flavor
+  - web_server_count
+
+- label: Database Settings
+  parameters:
+  - db_flavor
+
+- label: Magento Settings
+  parameters:
+  - domain
+  - username
+  - install_sample_data
+
+- label: rax-dev-params
+  parameters:
+  - server_hostname
+  - database_hostname
+  - web_hostname
+  - database_name
+  - database_user
+  - kitchen
+  - chef_version
+  - admin_email
+  - first_name
+  - last_name
+
+parameters:
+
+  # Server settings
+  master_hostname:
+    label: Server Name
+    description: Hostname to use for the server that is built.
+    type: string
+    default: Magento-Master
+    constraints:
+    - length:
+        min: 1
+        max: 64
+    - allowed_pattern: "^[a-zA-Z][a-zA-Z0-9-]*$"
+      description: |
+        Must begin with a letter and contain only alphanumeric characters.
+
+  database_hostname:
+    label: Database Server Name
+    description: Hostname to use for the server that is built.
+    type: string
+    default: Magento-Database
+    constraints:
+    - length:
+        min: 1
+        max: 64
+    - allowed_pattern: "^[a-zA-Z][a-zA-Z0-9-]*$"
+      description: |
+        Must begin with a letter and contain only alphanumeric characters.
+
+  web_hostname:
+    label: Database Server Name
+    description: Hostname to use for the server that is built.
+    type: string
+    default: Magento-Web%index%
+    constraints:
+    - length:
+        min: 1
+        max: 64
+    - allowed_pattern: "^[a-zA-Z][a-zA-Z0-9-]*$"
+      description: |
+        Must begin with a letter and contain only alphanumeric characters.
+
+  image:
+    label: Operating System
+    description: |
+      Required: Server image used for all servers that are created as a part of
+      this deployment.
+    type: string
+    default: Ubuntu 12.04 LTS (Precise Pangolin)
+    constraints:
+    - allowed_values:
+      - Ubuntu 12.04 LTS (Precise Pangolin)
+      description: Must be a supported operating system.
+
+  master_flavor:
+    label: Master Server Size
+    description: |
+      Required: Rackspace Cloud Server flavor to use. The size is based on the
+      amount of RAM for the provisioned server. We recommend the master
+      server be one size larger than the web nodes as it handles admin calls
+      and content syncing.
+    type: string
+    default: 4 GB Performance
+    constraints:
+    - allowed_values:
+      - 4 GB Performance
+      - 8 GB Performance
+      - 15 GB Performance
+      - 30 GB Performance
+      description: |
+        Must be a valid Rackspace Cloud Server flavor for the region you have
+        selected to deploy into.
+
+  web_server_flavor:
+    label: Web Server Size
+    description: |
+      Required: Rackspace Cloud Server flavor to use. The size is based on the
+      amount of RAM for the provisioned server.
+    type: string
+    default: 2 GB Performance
+    constraints:
+    - allowed_values:
+      - 2 GB Performance
+      - 4 GB Performance
+      - 8 GB Performance
+      - 15 GB Performance
+      - 30 GB Performance
+      description: |
+        Must be a valid Rackspace Cloud Server flavor for the region you have
+        selected to deploy into.
+
+  web_server_count:
+    label: Web Server Count
+    description: |
+      Required: Number of web servers to deploy in addition to the master
+      server.
+    type: number
+    default: 1
+    constraints:
+    - range:
+        min: 0
+        max: 7
+      description: Must be between 0 and 7 servers.
+
+  db_flavor:
+    label: Server Size
+    description: |
+      Required: Rackspace Cloud Server flavor to use. The size is based on the
+      amount of RAM for the provisioned server.
+    type: string
+    default: 4 GB Performance
+    constraints:
+    - allowed_values:
+      - 4 GB Performance
+      - 8 GB Performance
+      - 15 GB Performance
+      - 30 GB Performance
+      description: |
+        Must be a valid Rackspace Cloud Server flavor for the region you have
+        selected to deploy into.
+
+  # Magento settings
+  domain:
+    label: Site Domain
+    description: Domain to be used with the Magento store
+    type: string
+    default: "example.com"
+    constraints:
+    - allowed_pattern: "^[a-zA-Z0-9.-]{1,255}.[a-zA-Z]{2,15}$"
+      description: Must be a valid domain name
+
+  # Optional Apache settings (SSL certs)
+  # ssl_private_key:
+  #  description: Private SSL key
+  #  type: string
+  #  default: ""
+  #  constraints:
+  #  - allowed_pattern: "^(.){0,5000}$"
+  #    description: "Key values must be under 5,000 characters"
+
+  # ssl_certificate:
+  #  description: Public SSL key
+  #  type: string
+  #  default: ""
+  #  constraints:
+  #  - allowed_pattern: "^(.){0,5000}$"
+  #    description: "Certificate values must be under 5,000 characters"
+
+  # ssl_intermediate_key:
+  #  description: Intermediate SSL key
+  #  type: string
+  #  default: ""
+  #  constraints:
+  #  - allowed_pattern: "^(.){0,5000}$"
+  #    description: "Intermediate values must be under 5,000 characters."
+
+  # Database configuration
+  database_name:
+    label: Database Name
+    description: Magento database name
+    type: string
+    default: magento
+    constraints:
+    - allowed_pattern: "^[0-9a-zA-Z$_]{1,64}$"
+      description: |
+        Maximum length of 64 characters, may only contain letters, numbers, and
+        underscores.
+
+  database_user:
+    label: Database User
+    description: Magento Database Username
+    type: string
+    default: magentouser
+    constraints:
+    - allowed_pattern: "^(.){1,16}$"
+      description: |
+        Must be shorter than 16 characters, this is due to MySQL's maximum
+        username length.
+
+
+  # Magento Admin User Configuration
+  username:
+    label: Admin User
+    description: Username for the Magento Administrative user account.
+    type: string
+    default: MagentoAdmin
+    constraints:
+    - allowed_pattern: "^(.){1,16}$"
+      description: |
+        Must be shorter than 16 characters.
+
+  admin_email:
+    label: Admin Email
+    description: Email address to associate with the Magento admin account.
+    type: string
+    default: admin@example.com
+
+  first_name:
+    label: First Name
+    description: First name of the Admin user
+    type: string
+    default: first
+
+  last_name:
+    label: Last Name
+    description: Last name of the Admin user
+    type: string
+    default: last
+
+  install_sample_data:
+    label: Install Sample Data
+    description: |
+      If selected, this will install Magento sample data. This can be useful
+      for development purposes.
+    type: boolean
+    default: false
+
+  child_template:
+    label: Child Template
+    description: |
+      Location of the child template to use for the Magento web servers
+    type: string
+    default: https://raw.githubusercontent.com/rackspace-orchestration-templates/magento-multi/master/magento-web-server.yaml
+
+  kitchen:
+    label: Kitchen URL
+    description: "URL for a git repo containing required cookbooks"
+    type: string
+    default: https://github.com/rackspace-orchestration-templates/magento-multi
+
+  chef_version:
+    label: Chef Version
+    description: Version of chef client to use
+    type: string
+    default: 11.14.2
+
+resources:
+  # Random password generation
+  database_password:
+    type: "OS::Heat::RandomString"
+    properties:
+      length: 16
+      sequence: lettersdigits
+
+  admin_password:
+    type: "OS::Heat::RandomString"
+    properties:
+      length: 16
+      sequence: lettersdigits
+
+  mysql_root_password:
+    type: "OS::Heat::RandomString"
+    properties:
+      length: 16
+      sequence: lettersdigits
+
+  mysql_repl_password:
+    type: "OS::Heat::RandomString"
+    properties:
+      length: 16
+      sequence: lettersdigits
+
+  mysql_debian_password:
+    type: "OS::Heat::RandomString"
+    properties:
+      length: 16
+      sequence: lettersdigits
+
+  magento_encryption_key:
+    type: "OS::Heat::RandomString"
+    properties:
+      length: 32
+      sequence: hexdigits
+
+  # SSH KEYS
+  ssh_key:
+    type: "OS::Nova::KeyPair"
+    properties:
+      name: { get_param: "OS::stack_id" }
+      save_private_key: true
+
+  # Lsync keypair
+  ssh_sync_key:
+    type: "OS::Nova::KeyPair"
+    properties:
+      name:
+        str_replace:
+          template: "%stack_id%-sync"
+          params:
+            "%stack_id%": { get_param: "OS::stack_id" }
+      save_private_key: true
+
+  # Server resources
+  load_balancer:
+    type: "Rackspace::Cloud::LoadBalancer"
+    depends_on:
+    - master_setup
+    - web_servers
+    properties:
+      name: { get_param: load_balancer_hostname }
+      nodes:
+      - addresses: [ { get_attr: [master_server, privateIPv4] } ]
+        port: 80
+        condition: ENABLED
+      - addresses: { get_attr: [web_servers, privateIPv4] }
+        port: 80
+        condition: ENABLED
+      port: 80
+      protocol: HTTP
+      algorithm: ROUND_ROBIN
+      contentCaching: ENABLED
+      virtualIps:
+      - type: PUBLIC
+        ipVersion: IPV4
+      metadata:
+        rax-heat: { get_param: "OS::stack_id" }
+
+  master_server:
+    type: "Rackspace::Cloud::Server"
+    properties:
+      name: { get_param: master_hostname }
+      flavor: { get_param: flavor }
+      image: { get_param: image }
+      key_name: { get_resource: ssh_key }
+      metadata:
+        rax-heat: { get_param: "OS::stack_id" }
+
+  database_server:
+    type: "Rackspace::Cloud::Server"
+    properties:
+      name: { get_param: database_hostname }
+      flavor: { get_param: db_flavor }
+      image: { get_param: image }
+      key_name: { get_resource: ssh_key }
+      metadata:
+        rax-heat: { get_param: "OS::stack_id" }
+
+  # Chef resources
+  database_setup:
+    type: "OS::Heat::ChefSolo"
+    depends_on:
+      - master_server
+      - database_server
+      - web_servers
+    properties:
+      username: root
+      private_key: { get_attr: [ssh_key, private_key] }
+      host: { get_attr: [database_server, accessIPv4] }
+      kitchen: { get_param: kitchen }
+      chef_version: { get_param: chef_version }
+      node:
+        hollandbackup:
+          main:
+            backup_directory: "/var/lib/mysqlbackup"
+            mysqldump:
+              user: "root"
+              host: "localhost"
+              password: { get_attr: [mysql_root_password, value] }
+        magento:
+          db:
+            database: { get_param: database_name }
+            host: { get_attr: [database_server, privateIPv4] }
+            username: { get_param: database_user }
+            password: { get_attr: [database_password, value] }
+        memcached:
+          listen: { get_attr: [database_server, privateIPv4] }
+        mysql:
+          server_root_password: { get_attr: [mysql_root_password, value] }
+          server_debian_password: { get_attr: [mysql_debian_password, value] }
+          server_repl_password: { get_attr: [mysql_repl_password, value] }
+        rax:
+          memcached:
+            clients:
+              - { get_attr: [master_server, privateIPv4] }
+              - { get_attr: [web_servers, privateIPv4] }
+        run_list: ["recipe[apt]",
+                   "recipe[build-essential]",
+                   "recipe[mysql::server]",
+                   "recipe[rax-magento::mysql]",
+                   "recipe[hollandbackup]",
+                   "recipe[hollandbackup::mysqldump]",
+                   "recipe[hollandbackup::main]",
+                   "recipe[hollandbackup::backupsets]",
+                   "recipe[hollandbackup::cron]",
+                   "recipe[rax-firewall]"]
+
+  master_setup:
+    type: "OS::Heat::ChefSolo"
+    depends_on:
+      - master_server
+      - database_setup
+      - web_servers
+    properties:
+      username: root
+      private_key: { get_attr: [ssh_key, private_key] }
+      host: { get_attr: [magento_server, accessIPv4] }
+      kitchen: { get_param: kitchen }
+      chef_version: { get_param: chef_version }
+      node:
+        magento:
+          domain: { get_param: domain }
+          db:
+            database: { get_param: database_name }
+            host: { get_attr: [database_server, privateIPv4] }
+            username: { get_param: database_user }
+            password: { get_attr: [database_password, value] }
+        rax:
+          lsyncd:
+            clients: { get_attr: [web_servers, privateIPv4] }
+            ssh:
+              private_key: { get_attr: [ssh_sync_key, private_key] }
+          magento:
+            admin_user:
+              firstname: { get_param: first_name }
+              lastname: { get_param: last_name }
+              email: { get_param: admin_email }
+              username: { get_param: username }
+              password: { get_attr: [admin_password, value] }
+            encryption_key: { get_attr: [ magento_encryption_key, value ] }
+            master: true
+            single: false
+            memcached:
+              servers:
+                sessions:
+                  servers: { get_attr: [database_server, privateIPv4] }
+                slow_backend:
+                  servers: { get_attr: [database_server, privateIPv4] }
+          firewall:
+            tcp: [80, 443]
+          php-fpm:
+            slaves: { get_attr: [web_servers, privateIPv4] }
+        run_list: ["recipe[apt]",
+                   "recipe[build-essential]",
+                   "recipe[magento]",
+                   "recipe[rax-magento::php_fpm]",
+                   "recipe[rax-magento::config_magento]",
+                   "recipe[rax-magento::memcache-client]",
+                   "recipe[hollandbackup]",
+                   "recipe[hollandbackup::mysqldump]",
+                   "recipe[hollandbackup::main]",
+                   "recipe[hollandbackup::backupsets]",
+                   "recipe[hollandbackup::cron]",
+                   "recipe[rax-firewall]"]
+
+  web_servers:
+    type: "OS::Heat::ResourceGroup"
+    depends_on:
+      - database_server
+      - master_server
+    properties:
+      count: { get_param: web_server_count }
+      resource_def:
+        type: { get_param: child_template }
+        properties:
+          web_hostname: { get_param: web_hostname }
+          image: { get_param: image }
+          flavor: { get_param: web_server_flavor }
+          domain: { get_param: domain }
+          lsync_pub: { get_attr: [ssh_sync_key, public_key]}
+          varnish_master_backend: { get_attr: [master_server, privateIPv4] }
+          memcached_host: { get_attr: [database_server, privateIPv4] }
+          php_fpm_master: { get_attr: [master_server, privateIPv4] }
+          ssh_keypair_name: { get_resource: ssh_key }
+          ssh_private_key: { get_attr: [ssh_key, private_key] }
+          lsync_pub: { get_attr: [ssh_sync_key, public_key] }
+          kitchen: { get_param: kitchen }
+          chef_version: { get_param: chef_version }
+          parent_stack_id: { get_param: "OS::stack_id" }
+
+outputs:
+  private_key:
+    description: SSH Private Key
+    value: { get_attr: [ssh_key, private_key] }
+
+  load_balancer_ip:
+    value: { get_attr: [load_balancer, PublicIp] }
+    description: Load Balancer IP
+
+  magento_url:
+    description: Store URL
+    value:
+      str_replace:
+        template: "http://%domain%"
+        params:
+          "%domain%": { get_param: domain }
+
+  admin_url:
+    description: Admin URL
+    value:
+      str_replace:
+        template: 'https://%domain%/admin'
+        params:
+          "%domain%": { get_param: domain }
+
+  admin_user:
+    description: Admin User
+    value: { get_param: admin_user }
+
+  admin_password:
+    description: Admin Password
+    value: { get_attr: [admin_password, value] }
+
+  mysql_root_password:
+    description: MySQL Root Password
+    value: { get_attr: [mysql_root_password, value] }
