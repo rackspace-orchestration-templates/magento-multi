@@ -415,6 +415,7 @@ resources:
         memcached:
           listen: { get_attr: [database_server, privateIPv4] }
         mysql:
+          interface: eth1
           server_root_password: { get_attr: [mysql_root_password, value] }
           server_debian_password: { get_attr: [mysql_debian_password, value] }
           server_repl_password: { get_attr: [mysql_repl_password, value] }
@@ -427,6 +428,9 @@ resources:
                    "recipe[build-essential]",
                    "recipe[mysql::server]",
                    "recipe[rax-magento::mysql]",
+                   "recipe[rax-magento::firewall-mysql]",
+                   "recipe[rax-magento::memcached]",
+                   "recipe[rax-magento::firewall-memcached]",
                    "recipe[hollandbackup]",
                    "recipe[hollandbackup::mysqldump]",
                    "recipe[hollandbackup::main]",
