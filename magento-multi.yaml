@@ -533,11 +533,10 @@ resources:
           image: { get_param: image }
           flavor: { get_param: web_server_flavor }
           domain: { get_param: domain }
-          lsync_pub: { get_attr: [ssh_sync_key, public_key]}
+          lsync_pub: { get_attr: [ssh_sync_key, public_key] }
           php_fpm_master: { get_attr: [master_server, privateIPv4] }
           ssh_keypair_name: { get_resource: ssh_key }
           ssh_private_key: { get_attr: [ssh_key, private_key] }
-          lsync_pub: { get_attr: [ssh_sync_key, public_key] }
           magento_dir:
             str_replace:
               template: "/var/www/vhosts/%domain%"
