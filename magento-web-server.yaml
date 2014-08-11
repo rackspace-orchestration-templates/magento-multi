@@ -101,7 +101,7 @@ resources:
 
   web_setup:
     type: "OS::Heat::ChefSolo"
-    depends_on: wp_web_server
+    depends_on: web_server
     properties:
       username: root
       private_key: { get_param: ssh_private_key }
