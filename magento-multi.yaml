@@ -412,6 +412,7 @@ resources:
             host: { get_attr: [database_server, privateIPv4] }
             username: { get_param: database_user }
             password: { get_attr: [database_password, value] }
+            acl: "10.%"
         memcached:
           listen: { get_attr: [database_server, privateIPv4] }
         mysql:
