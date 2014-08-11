@@ -9,3 +9,5 @@ cookbook 'rax-firewall',
   :git => 'https://github.com/brint/rax-firewall-cookbook'
 cookbook 'hollandbackup',
   :git => 'https://github.com/brint/hollandbackup'
+cookbook 'lsyncd',
+  :git => 'https://github.com/dgivens/chef-lsyncd'
