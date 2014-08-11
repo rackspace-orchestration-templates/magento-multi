@@ -471,6 +471,11 @@ resources:
               email: { get_param: admin_email }
               username: { get_param: username }
               password: { get_attr: [admin_password, value] }
+            dir:
+              str_replace:
+                template: "/var/www/vhosts/%domain%"
+                params:
+                  "%domain%": { get_param: domain }
             encryption_key: { get_attr: [ magento_encryption_key, value ] }
             master: true
             single: false
@@ -513,6 +518,12 @@ resources:
           ssh_keypair_name: { get_resource: ssh_key }
           ssh_private_key: { get_attr: [ssh_key, private_key] }
           lsync_pub: { get_attr: [ssh_sync_key, public_key] }
+          magento_dir:
+            dir:
+              str_replace:
+                template: "/var/www/vhosts/%domain%"
+                params:
+                  "%domain%": { get_param: domain }
           kitchen: { get_param: kitchen }
           chef_version: { get_param: chef_version }
           parent_stack_id: { get_param: "OS::stack_id" }

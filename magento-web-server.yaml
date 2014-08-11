@@ -54,6 +54,11 @@ parameters:
     type: string
     default: "example.com"
 
+  magento_dir:
+    description: Location to install Magento
+    type: string
+    default: /var/www/magento
+
   # Magento Settings
   php_fpm_master:
     description: "IP of the Master node"
@@ -109,6 +114,8 @@ resources:
       kitchen: { get_param: kitchen }
       chef_version: { get_param: chef_version }
       node:
+        magento:
+          dir: { get_param: magento_dir }
         rax:
           lsyncd:
             ssh:
