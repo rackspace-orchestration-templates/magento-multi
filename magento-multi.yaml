@@ -464,6 +464,27 @@ resources:
             host: { get_attr: [database_server, privateIPv4] }
             username: { get_param: database_user }
             password: { get_attr: [database_password, value] }
+          dir:
+            str_replace:
+              template: "/var/www/vhosts/%domain%"
+              params:
+                "%domain%": { get_param: domain }
+        php-fpm:
+          pools:
+            - name: magento
+              listen:
+                str_replace:
+                  template: "%ip%:9001"
+                  params:
+                    "%ip%": { get_attr: [master_server, privateIPv4] }
+              user: magento
+              group: www-data
+              process_manager: dynamic
+              max_children: 50
+              start_servers: 5
+              min_spare_servers: 5
+              max_spare_servers: 35
+              max_requests: 500
         rax:
           lsyncd:
             clients: { get_attr: [web_servers, privateIPv4] }
@@ -476,11 +497,6 @@ resources:
               email: { get_param: admin_email }
               username: { get_param: username }
               password: { get_attr: [admin_password, value] }
-            dir:
-              str_replace:
-                template: "/var/www/vhosts/%domain%"
-                params:
-                  "%domain%": { get_param: domain }
             encryption_key: { get_attr: [ magento_encryption_key, value ] }
             master: true
             single: false
@@ -495,21 +511,6 @@ resources:
           php-fpm:
             master: { get_attr: [master_server, privateIPv4] }
             slaves: { get_attr: [web_servers, privateIPv4] }
-            pools:
-              - name: magento
-                listen:
-                  str_replace:
-                    template: "%ip%:9001"
-                    params:
-                      "%ip%": { get_attr: [master_server, privateIPv4] }
-                user: magento
-                group: www-data
-                process_manager: dynamic
-                max_children: 50
-                start_servers: 5
-                min_spare_servers: 5
-                max_spare_servers: 35
-                max_requests: 500
         run_list: ["recipe[apt]",
                    "recipe[build-essential]",
                    "recipe[magento]",
