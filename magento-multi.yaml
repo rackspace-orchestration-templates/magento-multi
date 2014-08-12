@@ -427,9 +427,9 @@ resources:
                 listen: { get_attr: [database_server, privateIPv4] }
               slow_backend:
                 listen: { get_attr: [database_server, privateIPv4] }
-            clients:
-              - { get_attr: [master_server, privateIPv4] }
-              - { get_attr: [web_servers, privateIPv4] }
+              clients:
+                - { get_attr: [master_server, privateIPv4] }
+                - { get_attr: [web_servers, privateIPv4] }
         run_list: ["recipe[apt]",
                    "recipe[build-essential]",
                    "recipe[mysql::server]",
