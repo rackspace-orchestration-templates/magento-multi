@@ -25,6 +25,8 @@ parameter_groups:
 
 - label: rax-dev-params
   parameters:
+  - load_balancer_hostname
+  - load_balancer_hostname_https
   - master_hostname
   - database_hostname
   - web_hostname
@@ -90,6 +92,20 @@ parameters:
     - allowed_pattern: "^[a-zA-Z][a-zA-Z0-9%-]*$"
       description: |
         Must begin with a letter and contain only alphanumeric characters.
+
+  load_balancer_hostname_https:
+    label: HTTPS Load Balancer Name
+    description: Hostname to use for the Load Balancer that is built.
+    type: string
+    default: Magento-Load-Balancer-HTTPS
+    constraints:
+    - length:
+        min: 1
+        max: 64
+    - allowed_pattern: "^[a-zA-Z][a-zA-Z0-9%-]*$"
+      description: |
+        Must begin with a letter and contain only alphanumeric characters.
+
   image:
     label: Operating System
     description: |
@@ -362,6 +378,27 @@ resources:
       virtualIps:
       - type: PUBLIC
         ipVersion: IPV4
+      metadata:
+        rax-heat: { get_param: "OS::stack_id" }
+
+  load_balancer_https:
+    type: "Rackspace::Cloud::LoadBalancer"
+    depends_on:
+    - load_balancer
+    properties:
+      name: { get_param: load_balancer_hostname_https }
+      nodes:
+      - addresses: [ { get_attr: [master_server, privateIPv4] } ]
+        port: 443
+        condition: ENABLED
+      - addresses: { get_attr: [web_servers, privateIPv4] }
+        port: 443
+        condition: ENABLED
+      port: 443
+      protocol: HTTPS
+      algorithm: ROUND_ROBIN
+      virtualIps:
+      - id: { get_attr: [ load_balancer, virtualIps, 0, id ] }
       metadata:
         rax-heat: { get_param: "OS::stack_id" }
 
