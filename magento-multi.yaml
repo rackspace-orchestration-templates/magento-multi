@@ -421,6 +421,8 @@ resources:
           server_debian_password: { get_attr: [mysql_debian_password, value] }
           server_repl_password: { get_attr: [mysql_repl_password, value] }
         rax:
+          firewall:
+            tcp: [22]
           magento:
             memcached:
               sessions:
