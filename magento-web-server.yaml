@@ -116,10 +116,28 @@ resources:
       node:
         magento:
           dir: { get_param: magento_dir }
+        php-fpm:
+          pools:
+            - name: magento
+              listen:
+                str_replace:
+                  template: "%ip%:9001"
+                  params:
+                    "%ip%": localhost
+              user: magento
+              group: www-data
+              process_manager: dynamic
+              max_children: 50
+              start_servers: 5
+              min_spare_servers: 5
+              max_spare_servers: 35
+              max_requests: 500
         rax:
           lsyncd:
             ssh:
               pub: { get_param: lsync_pub }
+          php_fpm:
+            master: { get_param: php_fpm_master }
           firewall:
             tcp: [22, 80, 443]
         run_list: ["recipe[apt]",
