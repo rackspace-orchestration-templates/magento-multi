@@ -558,7 +558,7 @@ resources:
                 slow_backend:
                   servers: { get_attr: [database_server, privateIPv4] }
           firewall:
-            tcp: [80, 443]
+            tcp: [22, 80, 443]
           php-fpm:
             master: { get_attr: [master_server, privateIPv4] }
             slaves: { get_attr: [web_servers, privateIPv4] }
