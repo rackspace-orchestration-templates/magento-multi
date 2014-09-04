@@ -1,6 +1,6 @@
 {
   "name": "varnish",
-  "version": "0.9.16",
+  "version": "0.9.18",
   "description": "Installs and configures varnish",
   "long_description": "",
   "maintainer": "Opscode, Inc.",
@@ -15,7 +15,9 @@
   },
   "dependencies": {
     "apt": "~> 2.4",
-    "yum": "~> 3.0"
+    "build-essential": ">= 0.0.0",
+    "yum": "~> 3.0",
+    "yum-epel": ">= 0.0.0"
   },
   "recommendations": {
   },
