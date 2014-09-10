@@ -575,7 +575,6 @@ resources:
   web_servers:
     type: "OS::Heat::ResourceGroup"
     depends_on:
-      - database_server
       - master_server
     properties:
       count: { get_param: web_server_count }
@@ -635,3 +634,15 @@ outputs:
   mysql_root_password:
     description: MySQL Root Password
     value: { get_attr: [mysql_root_password, value] }
+
+  database_server_ip:
+    description: Database Server IP
+    value: { get_attr: [database_server, accessIPv4] }
+
+  master_server_ip:
+    description: Master Server IP
+    value: { get_attr: [master_server, accessIPv4] }
+
+  web_server_ips:
+    description: Web Server IPs
+    value: { get_attr: [web_servers, accessIPv4] }
