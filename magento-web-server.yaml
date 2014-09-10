@@ -116,6 +116,7 @@ resources:
       node:
         magento:
           dir: { get_param: magento_dir }
+          domain: { get_param: domain }
         php-fpm:
           pools:
             - name: magento
