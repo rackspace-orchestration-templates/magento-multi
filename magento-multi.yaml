@@ -38,6 +38,7 @@ parameter_groups:
   - first_name
   - last_name
   - install_sample_data
+  - child_template
 
 parameters:
 
