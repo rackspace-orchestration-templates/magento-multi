@@ -174,7 +174,9 @@ parameters:
     label: Server Size
     description: |
       Required: Rackspace Cloud Server flavor to use. The size is based on the
-      amount of RAM for the provisioned server.
+      amount of RAM for the provisioned server. The large minimum size is due
+      to two memcached instances running for session and object caching on the
+      Database server.
     type: string
     default: 4 GB Performance
     constraints:
