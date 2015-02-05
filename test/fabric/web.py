@@ -2,6 +2,8 @@ import re
 from fabric.api import env, run, hide, task
 from envassert import detect, file, group, package, port, process, service, \
     user
+from hot.utils.test import get_artifacts, http_check
+
 
 
 def magento_is_responding():
@@ -32,3 +34,9 @@ def check():
     assert service.is_enabled("php5-fpm"), 'php5-fpm service not enabled'
 
     assert magento_is_responding(), 'Magento did not respond as expected.'
+
+
+@task
+def artifacts():
+    env.platform_family = detect.detect()
+    get_artifacts()
