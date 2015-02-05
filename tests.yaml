@@ -17,6 +17,7 @@ test-cases:
             key_filename: tmp/private_key
             hosts: { get_output: database_server_ip } # Fetch from output-list of stack
             tasks:
+              - artifacts
               - mysql
               - memcached
             abort_on_prompts: True
@@ -31,6 +32,7 @@ test-cases:
             key_filename: tmp/private_key
             hosts: { get_output: master_server_ip }
             tasks:
+              - artifacts
               - check
             abort_on_prompts: True
             connection_attempts: 3
@@ -44,6 +46,7 @@ test-cases:
             key_filename: tmp/private_key
             hosts: { get_output: web_server_ips }
             tasks:
+              - artifacts
               - check
             abort_on_prompts: True
             connection_attempts: 3
