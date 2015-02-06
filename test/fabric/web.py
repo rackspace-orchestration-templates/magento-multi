@@ -1,14 +1,14 @@
 import re
 from fabric.api import env, run, hide, task
-from envassert import detect, file, group, package, port, process, service, \
-    user
-from hot.utils.test import get_artifacts, http_check
-
+from envassert import detect, file, port, process, service, user
+from hot.utils.test import get_artifacts
 
 
 def magento_is_responding():
     with hide('running', 'stdout'):
-        homepage = run("wget --quiet --output-document - --header='Host: example.com' http://localhost/")
+        wget_cmd = ("wget --quiet --output-document - "
+                    "--header='Host: example.com' http://localhost/")
+        homepage = run(wget_cmd)
         if re.search('Magento Demo Store', homepage):
             return True
         else:
@@ -19,7 +19,8 @@ def magento_is_responding():
 def check():
     env.platform_family = detect.detect()
 
-    assert file.exists('/var/www/vhosts/example.com/.configured'), '.configured did not exist'
+    assert file.exists('/var/www/vhosts/example.com/.configured'), \
+        '.configured did not exist'
 
     assert port.is_listening(80), 'port 80 is not listening'
     assert port.is_listening(443), 'port 443 is not listenging'
