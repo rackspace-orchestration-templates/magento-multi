@@ -111,3 +111,4 @@ instructions: |
   verified that lsync is syncing content from the master node to the new
   server, add the server to the HTTP and HTTPS load balancers that were created
   as a part of this configuration.
+user-input-required: true
