@@ -1,3 +1,4 @@
+[![Circle CI](https://circleci.com/gh/rackspace-orchestration-templates/magento-multi/tree/master.png?style=shield)](https://circleci.com/gh/rackspace-orchestration-templates/magento-multi)
 Description
 ===========
 
