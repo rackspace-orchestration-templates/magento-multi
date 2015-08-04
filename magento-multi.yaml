@@ -1,8 +1,13 @@
 heat_template_version: 2013-05-23
 
 description: |
-  This is a Heat template to deploy multiple Linux server running Magento
-  Community Edition.
+  #### Multiple Servers
+
+  Multiple Linux servers with
+  [Magento 1.9.0.1 Community Edition](http://www.magentocommerce.com/product/community-edition/)
+  installed with [nginx](http://nginx.org/en/),
+  [PHP FPM](http://php-fpm.org/about/) and [MySQL 5.5](http://www.mysql.com/).
+  This deployment is intended for production use cases.
 
 parameter_groups:
 
