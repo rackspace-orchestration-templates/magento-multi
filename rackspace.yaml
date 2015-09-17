@@ -51,7 +51,7 @@ instructions: |
   password set, so if you wish to use the account, a password will need to be
   set.  This account is the system user for PHP-FPM, so deletion of this user
   will take eCommerce site down.
-
+  
   [Nginx](http://nginx.org/en/) is used as the web server and listens on port
   80 and 443 to handle web traffic. The configuration for your site can be
   found in /etc/nginx/sites-enabled. There will be a default site
