@@ -119,10 +119,10 @@ parameters:
       Required: Server image used for all servers that are created as a part of
       this deployment.
     type: string
-    default: Ubuntu 12.04 LTS (Precise Pangolin) (PV)
+    default: Ubuntu 12.04 LTS (Precise Pangolin) (PVHVM)
     constraints:
     - allowed_values:
-      - Ubuntu 12.04 LTS (Precise Pangolin) (PV)
+      - Ubuntu 12.04 LTS (Precise Pangolin) (PVHVM)
       description: Must be a supported operating system.
 
   master_flavor:
