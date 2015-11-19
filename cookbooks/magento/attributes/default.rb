@@ -1,7 +1,6 @@
 # coding: utf-8
 # General settings
-default[:magento][:url] = 'http://www.magentocommerce.com/downloads/assets/1.'\
-                          '9.0.1/magento-1.9.0.1.tar.gz'
+default[:magento][:url] = 'https://3fb66be59b12e2b636cf-d69d20d277a755fdadf91611975f2510.ssl.cf5.rackcdn.com/magento-1.9.0.1.tar.gz'
 default[:magento][:dir] = '/var/www/magento'
 default[:magento][:domain] = node['fqdn']
 # Magento CE's sample data can be found here:
